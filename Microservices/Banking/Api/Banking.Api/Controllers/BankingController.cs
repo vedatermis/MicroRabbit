@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Banking.Application.Interfaces;
+using Banking.Application.Models;
 using Banking.Domain.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,13 @@ namespace Banking.Api.Controllers
         public ActionResult<IEnumerable<Account>> Get()
         {
             return Ok(_accountService.GetAccount());
+        }
+
+        [HttpPost]
+        public IActionResult Post([FromBody] AccountTransfer accountTransfer)
+        {
+            _accountService.TransferFunds(accountTransfer);
+            return Ok(accountTransfer);
         }
     }
 }
