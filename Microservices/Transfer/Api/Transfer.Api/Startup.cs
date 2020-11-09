@@ -6,8 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using RabbitMq.Core.Bus;
 using RabbitMq.Infra.IoC;
 using Transfer.Data.Context;
+using Transfer.Domain.EventHandlers;
+using Transfer.Domain.Events;
 
 namespace Transfer.Api
 {
@@ -25,7 +28,7 @@ namespace Transfer.Api
         {
             services.AddDbContext<TransferContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("BankingConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("TransferConnection"));
             });
 
             services.AddMediatR(typeof(Startup));
@@ -68,6 +71,14 @@ namespace Transfer.Api
             {
                 endpoints.MapControllers();
             });
+
+            ConfigureEventBus(app);
+        }
+
+        private void ConfigureEventBus(IApplicationBuilder app)
+        {
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            eventBus.Subscribe<TransferCreatedEvent, TransferEventHandler>();
         }
     }
 }
